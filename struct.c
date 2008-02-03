@@ -117,7 +117,10 @@ static int64_t convert_int(struct_t *s, const char *arg)
 
   /* Binary */
   if ( strncmp(arg, "0b", 2) == 0 )
-    base = 2;
+    {
+      base = 2;
+      arg += 2;
+    }
 
   out = strtoll(arg, &tail, base);
   if (errno != 0)
@@ -138,7 +141,10 @@ static uint64_t convert_uint(struct_t *s, const char *arg)
 
   /* Binary */
   if ( strncmp(arg, "0b", 2) == 0 )
-    base = 2;
+    {
+      base = 2;
+      arg += 2;
+    }
 
   out = strtoull(arg, &tail, base);
   if (errno != 0)
