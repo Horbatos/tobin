@@ -304,7 +304,10 @@ static void get_bytes(struct_t *s, void *p, size_t size, FILE *f)
         fprintf(s->out, fmt" ", (tc)v);         \
       } while(0)
 #define signed_out(type) convert_type_out(type, "%lld", long long int)
-#define unsigned_out(type) convert_type_out(type, "%llu", long long unsigned int)
+#define unsigned_out8(type) convert_type_out(type, "%u", uint8_t)
+#define unsigned_out16(type) convert_type_out(type, "%u", uint16_t)
+#define unsigned_out32(type) convert_type_out(type, "%u", uint32_t)
+#define unsigned_out64(type) convert_type_out(type, "%llu", uint64_t)
 #define float_out() convert_type_out(float, "%f", float)
 #define double_out() convert_type_out(double, "%f", double)
 
@@ -356,28 +359,28 @@ static int do_one_unpack(struct_t *s)
     case 'b': /* int8_t */
       signed_out(int8_t); break;
     case 'B': /* uint8_t */
-      unsigned_out(uint8_t); break;
+      unsigned_out8(uint8_t); break;
     case 'h': /* int16_t */
       signed_out(int16_t); break;
     case 'H': /* uint16_t */
-      unsigned_out(int16_t); break;
+      unsigned_out16(int16_t); break;
     case 'i':
     case 'l': /* int32_t */
       signed_out(int32_t); break;
     case 'I':
     case 'L': /* uint32_t */
-      unsigned_out(int32_t); break;
+      unsigned_out32(int32_t); break;
     case 'q': /* int64_t */
       signed_out(int64_t); break;
     case 'Q': /* uint64_t */
-      unsigned_out(uint64_t); break;
+      unsigned_out64(uint64_t); break;
     case 'P':
       if (sizeof(void*) == 2)
-        unsigned_out(uint16_t); /* OK, maybe not that likely... */
+        unsigned_out16(uint16_t); /* OK, maybe not that likely... */
       else if (sizeof(void*) == 4)
-        unsigned_out(uint32_t);
+        unsigned_out32(uint32_t);
       else if (sizeof(void*) == 8)
-        unsigned_out(uint64_t);
+        unsigned_out64(uint64_t);
       break;
     case 'f': /* float */
       float_out(); break;
