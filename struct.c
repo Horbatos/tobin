@@ -218,9 +218,14 @@ static int do_one_pack(struct_t *s, const char *arg)
   switch (cur)
     {
     case 'x': /* Pad byte */
-      out = 0;
-      fputc(0, s->out);
-      break;
+      {
+        int n = ( nr == 0 ) ? 1 : nr; /* 0 will not work */
+        int i;
+
+        out = 0;
+        for (i = 0; i < n; i++)
+          fputc(0, s->out);
+      } break;
     case 'c': /* char (string of length 1) */
       fputc(arg[0], s->out);
       break;
@@ -332,9 +337,12 @@ static int do_one_unpack(struct_t *s)
     case 'x': /* Pad byte */
       {
         uint8_t dummy;
+        int n = ( nr == 0 ) ? 1 : nr;
+        int i;
 
         out = 0;
-        get_bytes(s, &dummy, sizeof(uint8_t), s->in);
+        for (i = 0; i < n; i++)
+          get_bytes(s, &dummy, sizeof(uint8_t), s->in);
       }
       break;
     case 'c': /* char (string of length 1) */
