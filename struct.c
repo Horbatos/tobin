@@ -477,13 +477,14 @@ void init_struct_unpack(struct_t *s, FILE *in, FILE *out, const char *fmt)
   init_struct(s, in, out, fmt);
 }
 
-const char *struct_fmt_options = "   x  pad byte     q   int64_t\n"
-"   c      char     Q  uint64_t\n"
-"   b    int8_t     f     float\n"
-"   B   uint8_t     d    double\n"
-"   h   int16_t   [nn]s  string (without NULL-termination)\n"
-"   H  uint16_t   [nn]p  string (without NULL-termination)\n"
-"   i   int32_t     P    void *\n"
+const char *struct_fmt_options =
+" [nn]x  pad byte(s)  q   int64_t\n"
+"   c      char       Q  uint64_t\n"
+"   b    int8_t       f     float\n"
+"   B   uint8_t       d    double\n"
+"   h   int16_t     [nn]s  string (without NULL-termination)\n"
+"   H  uint16_t     [nn]p  string (without NULL-termination)\n"
+"   i   int32_t       P    void *\n"
 "   I  uint32_t\n"
 "   l   int32_t\n"
 "   L  uint32_t\n"
