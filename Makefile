@@ -1,27 +1,18 @@
-######################################################################
-##
-## Copyright (C) 2008,  Simon Kagstrom
-##
-## Filename:      Makefile
-## Author:        Simon Kagstrom <simon.kagstrom@gmail.com>
-## Description:   Makefile for struct
-##
-## $Id:$
-##
-######################################################################
-CC = gcc
-LD = gcc
+.PHONY: all clean
+
+CFLAGS += -Wall -Werror -MD
+
+SRCS = struct.c struct-pack.c struct-unpack.c utils.c
 
 all: tobin binto
 
-%.o: %.c
-	$(CC) -g -Wall -c $< -o $@
+tobin: struct.o struct-pack.o utils.o
+	$(CC) $(LDFLAGS) -o $@ $^
 
-tobin: struct.o struct-pack.o
-	$(LD) $+ -o $@
-
-binto: struct.o struct-unpack.o
-	$(LD) $+ -o $@
+binto: struct.o struct-unpack.o utils.o
+	$(CC) $(LDFLAGS) -o $@ $^
 
 clean:
-	rm -f *.o tobin binto *~
+	-rm -f *.o *.d tobin binto
+
+-include $(SRCS:.c=.d)

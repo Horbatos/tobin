@@ -123,7 +123,7 @@ static int64_t convert_int(struct_t *s, const char *arg)
     }
 
   out = strtoll(arg, &tail, base);
-  if (errno != 0)
+  if (tail == arg)
     {
       fprintf(stderr, "Cannot convert %s to an integer\n", arg);
       exit(1);
@@ -147,7 +147,7 @@ static uint64_t convert_uint(struct_t *s, const char *arg)
     }
 
   out = strtoull(arg, &tail, base);
-  if (errno != 0)
+  if (tail == arg)
     {
       fprintf(stderr, "Cannot convert %s to an integer\n", arg);
       exit(1);
@@ -163,7 +163,7 @@ static float convert_float(struct_t *s, const char *arg)
   float out;
 
   out = (float)strtod(arg, &tail); /* strtof not standard */
-  if (errno != 0)
+  if (tail == arg)
     {
       fprintf(stderr, "Cannot convert %s to a float\n", arg);
       exit(1);
@@ -178,7 +178,7 @@ static float convert_double(struct_t *s, const char *arg)
   double out;
 
   out = strtod(arg, &tail);
-  if (errno != 0)
+  if (tail == arg)
     {
       fprintf(stderr, "Cannot convert %s to a double\n", arg);
       exit(1);
@@ -218,14 +218,9 @@ static int do_one_pack(struct_t *s, const char *arg)
   switch (cur)
     {
     case 'x': /* Pad byte */
-      {
-        int n = ( nr == 0 ) ? 1 : nr; /* 0 will not work */
-        int i;
-
-        out = 0;
-        for (i = 0; i < n; i++)
-          fputc(0, s->out);
-      } break;
+      out = 0;
+      fputc(0, s->out);
+      break;
     case 'c': /* char (string of length 1) */
       fputc(arg[0], s->out);
       break;
@@ -312,7 +307,7 @@ static void get_bytes(struct_t *s, void *p, size_t size, FILE *f)
 #define unsigned_out8(type) convert_type_out(type, "%u", uint8_t)
 #define unsigned_out16(type) convert_type_out(type, "%u", uint16_t)
 #define unsigned_out32(type) convert_type_out(type, "%u", uint32_t)
-#define unsigned_out64(type) convert_type_out(type, "%llu", uint64_t)
+#define unsigned_out64(type) convert_type_out(type, "%llu", long long unsigned)
 #define float_out() convert_type_out(float, "%f", float)
 #define double_out() convert_type_out(double, "%f", double)
 
@@ -337,12 +332,9 @@ static int do_one_unpack(struct_t *s)
     case 'x': /* Pad byte */
       {
         uint8_t dummy;
-        int n = ( nr == 0 ) ? 1 : nr;
-        int i;
 
         out = 0;
-        for (i = 0; i < n; i++)
-          get_bytes(s, &dummy, sizeof(uint8_t), s->in);
+        get_bytes(s, &dummy, sizeof(uint8_t), s->in);
       }
       break;
     case 'c': /* char (string of length 1) */
@@ -477,14 +469,13 @@ void init_struct_unpack(struct_t *s, FILE *in, FILE *out, const char *fmt)
   init_struct(s, in, out, fmt);
 }
 
-const char *struct_fmt_options =
-" [nn]x  pad byte(s)  q   int64_t\n"
-"   c      char       Q  uint64_t\n"
-"   b    int8_t       f     float\n"
-"   B   uint8_t       d    double\n"
-"   h   int16_t     [nn]s  string (without NULL-termination)\n"
-"   H  uint16_t     [nn]p  string (without NULL-termination)\n"
-"   i   int32_t       P    void *\n"
+const char *struct_fmt_options = "   x  pad byte     q   int64_t\n"
+"   c      char     Q  uint64_t\n"
+"   b    int8_t     f     float\n"
+"   B   uint8_t     d    double\n"
+"   h   int16_t   [nn]s  string (without NULL-termination)\n"
+"   H  uint16_t   [nn]p  string (without NULL-termination)\n"
+"   i   int32_t     P    void *\n"
 "   I  uint32_t\n"
 "   l   int32_t\n"
 "   L  uint32_t\n"
@@ -497,4 +488,3 @@ const char *struct_fmt_options =
 "   <   little endian\n"
 "   >!  big endian (network)\n"
 "\n";
-

@@ -9,16 +9,24 @@
  * $Id:$
  *
  ********************************************************************/
+#include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "struct.h"
+#include "utils.h"
 
-static void usage(void)
+void usage(void)
 {
   fprintf(stderr,
-          "Usage: tobin fmt ...\n\n"
+          "Usage: tobin [-of outfile] [-os seek] fmt ...\n\n"
           "Produces binary output to stdout from a format string (similar to the\n"
-          "Python struct module)\n"
+          "Python struct module)\n\n"
+          "  -of outfile  specifies the outfile name (default stdout)\n"
+          "  -os seek     specifies how far to seek into the outfile (default 0)\n"
           "\n"
           "Where format is\n"
           "%s"
@@ -34,13 +42,19 @@ static void usage(void)
 int main(int argc, const char *argv[])
 {
   struct_t s;
-  FILE *out = stdout;
+  FILE *out;
+  int fmt_offset = 1;
 
   if (argc < 3)
     usage();
 
-  init_struct_pack(&s, out, argv[1]);
-  run_struct_pack(&s, argc - 2, &argv[2]);
+  /* Open and lock the outfile */
+  out = parse_options_and_open_outfile(argv, argc, "r+", &fmt_offset); 
+
+  init_struct_pack(&s, out, argv[fmt_offset]);
+  run_struct_pack(&s, argc - (fmt_offset + 1), &argv[fmt_offset + 1]);
+
+  /* File is closed and unlocked at process exit */
 
   return 0;
 }
